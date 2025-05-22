@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Device Registration</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input { padding: 8px; width: 300px; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; }
+        #response { margin-top: 20px; padding: 10px; border: 1px solid #ddd; }
+        .steps { margin-bottom: 30px; }
+        .step { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .step h3 { margin-top: 0; }
+    </style>
+</head>
+<body>
+    <h2>Device Registration and Login Test</h2>
+    
+    <div class="steps">
+        <!-- Step 1: Register Device -->
+        <div class="step">
+            <h3>Step 1: Register Device</h3>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="device_uuid">Device UUID:</label>
+                    <input type="text" id="device_uuid" value="test-device-123" required>
+                </div>
+                <div class="form-group">
+                    <label for="device_name">Device Name:</label>
+                    <input type="text" id="device_name" value="Test Device" required>
+                </div>
+                <button type="submit">Register Device</button>
+            </form>
+        </div>
+
+        <!-- Step 2: Login -->
+        <div class="step">
+            <h3>Step 2: Login</h3>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" value="admin@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" value="admin123" required>
+                </div>
+                <div class="form-group">
+                    <label for="device_id">Device ID:</label>
+                    <input type="text" id="device_id" value="test-device-123" required>
+                </div>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+
+        <!-- Step 3: Test Trips -->
+        <div class="step">
+            <h3>Step 3: Test Trips Endpoint</h3>
+            <form id="getTripsForm">
+                <div class="form-group">
+                    <label for="date">Date:</label>
+                    <input type="date" id="date">
+                </div>
+                <div class="form-group">
+                    <label for="status">Status:</label>
+                    <select id="status">
+                        <option value="pending">Pending</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="trip_id">Trip ID (optional):</label>
+                    <input type="number" id="trip_id">
+                </div>
+                <button type="submit">Get Trips</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="response"></div>
+
+    <script>
+        // Store device ID after registration/login
+        let deviceId = '';
+
+        // Register Device Form Handler
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const response = document.getElementById('response');
+            
+            try {
+                const res = await fetch('register.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        device_uuid: document.getElementById('device_uuid').value,
+                        device_name: document.getElementById('device_name').value
+                    })
+                });
+                
+                const data = await res.json();
+                response.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                
+                if (data.message === 'Device registered successfully') {
+                    deviceId = document.getElementById('device_uuid').value;
+                    response.innerHTML += '<p style="color: green;">Device registered successfully! You can now proceed to login.</p>';
+                }
+            } catch (error) {
+                response.innerHTML = `<pre>Error: ${error.message}</pre>`;
+            }
+        });
+
+        // Login Form Handler
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const response = document.getElementById('response');
+            
+            try {
+                const res = await fetch('../auth/login.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: document.getElementById('email').value,
+                        password: document.getElementById('password').value,
+                        device_id: document.getElementById('device_id').value
+                    })
+                });
+                
+                const data = await res.json();
+                response.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                
+                if (data.message === 'Login successful') {
+                    deviceId = document.getElementById('device_id').value;
+                    response.innerHTML += '<p style="color: green;">Login successful! You can now get trips.</p>';
+                }
+            } catch (error) {
+                response.innerHTML = `<pre>Error: ${error.message}</pre>`;
+            }
+        });
+
+        // Get Trips Form Handler
+        document.getElementById('getTripsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const response = document.getElementById('response');
+            
+            if (!deviceId) {
+                response.innerHTML = '<p style="color: red;">Please register device and login first!</p>';
+                return;
+            }
+
+            try {
+                const params = new URLSearchParams();
+                if (document.getElementById('date').value) {
+                    params.append('date', document.getElementById('date').value);
+                }
+                if (document.getElementById('status').value) {
+                    params.append('status', document.getElementById('status').value);
+                }
+                if (document.getElementById('trip_id').value) {
+                    params.append('trip_id', document.getElementById('trip_id').value);
+                }
+
+                const res = await fetch(`../trips/get.php?${params.toString()}`, {
+                    headers: {
+                        'X-Device-ID': deviceId
+                    }
+                });
+                
+                const data = await res.json();
+                response.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                response.innerHTML = `<pre>Error: ${error.message}</pre>`;
+            }
+        });
+    </script>
+</body>
+</html>
