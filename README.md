@@ -9,6 +9,8 @@ POST http://149.56.195.219:8080/bookings/create.php
 POST http://149.56.195.219:8080/trips/create.php
 ```
 
+
+
 ## Example Requests
 
 ### Production
@@ -17,6 +19,8 @@ curl -X POST http://149.56.195.219:8080/auth/login.php \
   -H "Content-Type: application/json" \
   -d '{"email": "admin@example.com", "password": "admin123", "device_id": "test123"}'
 ```
+
+
 
 ## Setup Instructions
 
