@@ -1,4 +1,10 @@
 <?php
+// Load environment variables from .env file (if you are using one)
+// This assumes you've installed vlucas/phpdotenv via Composer
+// require_once __DIR__ . '/../vendor/autoload.php'; // Adjust path if your vendor dir is elsewhere
+// $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../'); // Points to /opt/lampp/htdocs/tkt/
+// $dotenv->load();
+
 require_once '../config/db.php';
 require_once '../utils/functions.php';
 
@@ -44,9 +50,14 @@ try {
             $user['company_id'],
             $user['id'],
             $data['device_id'],
-            $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown Device'
+            sanitizeInput($_SERVER['HTTP_USER_AGENT'] ?? 'Unknown Device') // Sanitize User Agent
         ]);
     }
+
+    // Regenerate session ID for security after successful login
+    // This should happen before any session variables are set or modified if possible,
+    // but definitely before sending the response.
+    session_regenerate_id(true);
 
     // Set session
     $_SESSION['user_id'] = $user['id'];
@@ -65,6 +76,9 @@ try {
     ]);
 
 } catch (PDOException $e) {
-    sendResponse(500, ['error' => 'Database error: ' . $e->getMessage()]);
+    // Log the detailed error for server-side review
+    // Example: error_log("Database Error in login.php: " . $e->getMessage());
+    // Ensure your PHP error logging is configured correctly on the server.
+    sendResponse(500, ['error' => 'An internal server error occurred. Please try again later.']);
 }
 ?> 
