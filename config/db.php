@@ -1,10 +1,11 @@
 <?php
 class Database {
 
-    private $host = "localhost"; 
-    private $db_name = "tkt";
-    private $username = "root"; 
-    private $password = "31278527"; 
+    private $host;
+    private $db_name;
+    private $username;
+    private $password;
+    private $port;
     private $charset = "utf8mb4";
     public $conn;
 
@@ -12,7 +13,14 @@ class Database {
     public function getConnection() {
         $this->conn = null;
 
-        $dsn = "mysql:host=" . $this->host . ";dbname=" . $this->db_name . ";charset=" . $this->charset;
+        // Read credentials from environment variables
+        $this->host = getenv('DB_HOST') ?: 'localhost'; // Default to localhost if not set
+        $this->port = getenv('DB_PORT') ?: '3306';     // Default MySQL/MariaDB port
+        $this->db_name = getenv('DB_NAME');             // It's better if these are always explicitly set
+        $this->username = getenv('DB_USER');           // No defaults for user/pass is safer
+        $this->password = getenv('DB_PASS');
+
+        $dsn = "mysql:host=" . $this->host . ";port=" . $this->port . ";dbname=" . $this->db_name . ";charset=" . $this->charset;
         $options = [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
