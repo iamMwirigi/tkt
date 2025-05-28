@@ -66,7 +66,9 @@ function generateTripCode($company_prefix, $route_code, $date) {
 function calculateNetAmount($gross_amount, $deductions) {
     $total_deductions = 0;
     foreach ($deductions as $deduction) {
-        $total_deductions += $deduction['amount'];
+        if (isset($deduction['amount']) && is_numeric($deduction['amount'])) {
+            $total_deductions += (float)$deduction['amount'];
+        }
     }
     return $gross_amount - $total_deductions;
 }

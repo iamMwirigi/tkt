@@ -2,10 +2,10 @@
 session_start(); // <-- Add this line at the very top
 
 // Load environment variables from .env file (if you are using one)
-// This assumes you've installed vlucas/phpdotenv via Composer
-// require_once __DIR__ . '/../vendor/autoload.php'; // Adjust path if your vendor dir is elsewhere
-// $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../'); // Points to /opt/lampp/htdocs/tkt/
-// $dotenv->load();
+// This assumes you've installed vlucas/phpdotenv via Composer and have a .env file in your project root
+require_once __DIR__ . '/../vendor/autoload.php'; 
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../'); // Points to /opt/lampp/htdocs/tkt/
+$dotenv->load();
 
 require_once '../config/db.php';
 require_once '../utils/functions.php';
@@ -77,10 +77,12 @@ try {
         ]
     ]);
 
-} catch (PDOException $e) {
+} catch (Throwable $e) { // Catch any throwable, not just PDOException
     // Log the detailed error for server-side review
-    // Example: error_log("Database Error in login.php: " . $e->getMessage());
+    error_log(
+        "Error in login.php for user " . ($data['email'] ?? 'unknown_email') . ": " . 
+        get_class($e) . " - " . $e->getMessage() . "\nStack trace:\n" . $e->getTraceAsString()
+    );
     // Ensure your PHP error logging is configured correctly on the server.
     sendResponse(500, ['error' => 'An internal server error occurred. Please try again later.']);
 }
-?>
