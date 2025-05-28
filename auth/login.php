@@ -1,4 +1,6 @@
 <?php
+session_start(); // <-- Add this line at the very top
+
 // Load environment variables from .env file (if you are using one)
 // This assumes you've installed vlucas/phpdotenv via Composer
 // require_once __DIR__ . '/../vendor/autoload.php'; // Adjust path if your vendor dir is elsewhere
@@ -81,4 +83,4 @@ try {
     // Ensure your PHP error logging is configured correctly on the server.
     sendResponse(500, ['error' => 'An internal server error occurred. Please try again later.']);
 }
-?> 
+?>
