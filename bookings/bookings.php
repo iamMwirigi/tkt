@@ -1,5 +1,5 @@
 <?php
-// session_start(); // Uncomment if you need session-based authentication/authorization for this endpoint
+session_start(); // Uncomment if you need session-based authentication/authorization for this endpoint
 
 require_once '../config/db.php'; // Assuming 'db.php' is the correct filename
 require_once '../utils/functions.php'; // To use sendResponse
@@ -8,6 +8,9 @@ header('Access-Control-Allow-Origin: *'); // Adjust as needed for your CORS poli
 
 $db = new Database(); // This should match the class name in your db.php
 $pdo = $db->getConnection();
+
+
+
 
 try {
     // Fetch all bookings

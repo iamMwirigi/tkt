@@ -59,7 +59,7 @@ function generateTripCode($company_prefix, $route_code, $date) {
         $company_prefix,
         $route_code,
         date('Ymd', strtotime($date)),
-        rand(1, 999)
+        mt_rand(1, 999) // Using mt_rand() for better randomness
     );
 }
 
