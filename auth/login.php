@@ -37,8 +37,8 @@ try {
     if (!$device) {
         // Register new device
         $stmt = $conn->prepare("
-            INSERT INTO devices (company_id, user_id, device_uuid, device_name) 
-            VALUES (?, ?, ?, ?)
+            INSERT INTO devices (company_id, user_id, device_uuid, device_name, is_active) 
+            VALUES (?, ?, ?, ?, 1)
         ");
         $stmt->execute([
             $user['company_id'],
